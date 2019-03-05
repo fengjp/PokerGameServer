@@ -1,4 +1,5 @@
 # GamgeServer
+python2
 ## socket连接使用
 autobahn
 ## 通信协议使用
