@@ -1,0 +1,26 @@
+2019-01-29 12:56:18+0800 [-] Log opened.
+2019-01-29 12:56:20+0800 [-] MahjongServer starting on 9601
+2019-01-29 12:56:20+0800 [-] Starting factory <mahjong.server.MahjongServer object at 0x0000000003B6D828>
+2019-01-29 12:56:20+0800 [-] [Info][on start factory]
+2019-01-29 12:57:25+0800 [Player,0,127.0.0.1] [Info]client[tcp4:127.0.0.1:13750] hash[1929415556] try connecting.
+2019-01-29 12:57:25+0800 [Player,0,127.0.0.1] [Info]client[tcp4:127.0.0.1:13750] handshake finished.
+2019-01-29 12:57:28+0800 [-] [Info]==================================Total peers [1]============================
+2019-01-29 12:57:33+0800 [-] [Info]==================================Total peers [1]============================
+2019-01-29 12:57:34+0800 [Player,0,127.0.0.1] [Info]client[tcp4:127.0.0.1:13750] disconnected reason[connection was closed uncleanly (peer dropped the TCP connection without previous WebSocket closing handshake)]
+2019-01-29 12:58:14+0800 [-] [Info]client[None] disconnected error:no found descTxt
+2019-01-29 12:58:53+0800 [-] [Info]client[None] disconnected error:no found descTxt
+2019-01-29 12:58:57+0800 [Player,3,127.0.0.1] [Info]client[tcp4:127.0.0.1:13887] hash[1205035587] try connecting.
+2019-01-29 12:58:57+0800 [Player,3,127.0.0.1] [Info]client[tcp4:127.0.0.1:13887] handshake finished.
+2019-01-29 12:59:01+0800 [-] [Info]==================================Total peers [1]============================
+2019-01-29 12:59:06+0800 [-] [Info]==================================Total peers [1]============================
+2019-01-29 12:59:07+0800 [Player,3,127.0.0.1] [Info]received client[tcp4:127.0.0.1:13887] data
+2019-01-29 12:59:07+0800 [Player,3,127.0.0.1] [Info]try unpack [<class 'common.mahjong_pb2.C_S_Ping'>] from [tcp4:127.0.0.1:13887]
+2019-01-29 12:59:07+0800 [Player,3,127.0.0.1] [Info]pack [S_C_Ping]
+2019-01-29 12:59:07+0800 [Player,3,127.0.0.1] [Info][onPing][tcp4:127.0.0.1:13887] lastPingTimestamp[1548737947719]
+2019-01-29 12:59:12+0800 [-] [Info]==================================Total peers [1]============================
+2019-01-29 12:59:17+0800 [-] [Info]==================================Total peers [1]============================
+2019-01-29 12:59:17+0800 [Player,3,127.0.0.1] [Info]received client[tcp4:127.0.0.1:13887] data
+2019-01-29 12:59:17+0800 [Player,3,127.0.0.1] [Info]try unpack [<class 'common.mahjong_pb2.C_S_Ping'>] from [tcp4:127.0.0.1:13887]
+2019-01-29 12:59:17+0800 [Player,3,127.0.0.1] [Info]pack [S_C_Ping]
+2019-01-29 12:59:17+0800 [Player,3,127.0.0.1] [Info][onPing][tcp4:127.0.0.1:13887] lastPingTimestamp[1548737957718]
+2019-01-29 12:59:18+0800 [Player,3,127.0.0.1] [Info]client[tcp4:127.0.0.1:13887] disconnected reason[connection was closed uncleanly (peer dropped the TCP connection without previous WebSocket closing handshake)]

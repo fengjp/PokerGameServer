@@ -1,0 +1,414 @@
+package mahjong;
+
+//为防止编号冲突，扩展协议命名需从0x00002000或者0x00003000之类的位置开始
+
+enum MSG_HEADER {
+    //client2server
+    C_S_CONNECTING = 0x00000001; //登录
+    C_S_DEBUG_CONNECTING = 0x00000002; //测试模式登录
+    C_S_EXIT_ROOM = 0x00000003; //退出房间
+    C_S_REFRESH_DATA = 0x00000004; //刷新数据
+    C_S_PING = 0x00000005;
+    C_S_TALK = 0x00000006; //发言，发表情
+    C_S_GM_CONTROL = 0x00000007; //GM控制
+    C_S_GAME_START = 0x00000008; //游戏开始
+    C_S_ROLL_DICE = 0x00000009; //打骰
+    C_S_DISCARD = 0x0000000a; //出牌
+    C_S_DO_ACTION = 0x0000000b; //吃碰杠胡牌
+    C_S_DISSOLVE_ROOM = 0x0000000c; //申请解散房间
+    C_S_DISSOLVE_VOTE = 0x0000000d; //解散投票
+    C_S_READY_NEXT = 0x0000000e; //关闭结算窗口准备好下一局
+    C_S_DEBUG_PROTO = 0x0000000f; //C_S的单个客户端调试多边，包装协议
+    C_S_GPS = 0x00000010; //GPS
+
+    //server2client
+    S_C_CONNECTED = 0x00001001; //登录结果
+    S_C_JOIN_ROOM = 0x00001002; //有玩家加入房间
+    S_C_DISCONNECTED = 0x00001003; //被断开链接
+    S_C_EXIT_ROOM = 0x00001004; //有玩家退出房间
+    S_C_REFRESH_DATA = 0x00001005; //刷新数据
+    S_C_REFRESH_ROOM_CARD = 0x00001006; //刷新房卡
+    S_C_NOTICE = 0x00001007; //消息
+    S_C_PING = 0x00001008;
+    S_C_TALK = 0x00001009; //语音，表情
+    S_C_ONLINE_STATE = 0x0000100a; //离开游戏状态
+    S_C_GM_CONTROL = 0x0000100b; //GM控制
+    S_C_SET_START = 0x0000100c; //小局开始
+    S_C_DEAL_TILES = 0x0000100d; //手牌
+    S_C_DRAW_TILES = 0x0000100e; //摸牌
+    S_C_DISCARD = 0x0000100f; //出牌
+    S_C_ALLOW_ACTION = 0x00001010; //吃碰杠胡可选项
+    S_C_DO_ACTION = 0x00001011; //选择吃碰杠胡
+    S_C_DISSOLVE_VOTE = 0x00001012; //有人发起解散
+    S_C_DISSOLVE_VOTE_RESULT = 0x00001013; //某人对解散的投票
+    S_C_BALANCE = 0x00001014; //得分数据
+    S_C_ROLL_DICE = 0x00001015; //打骰
+    S_C_DEBUG_PROTO = 0x00001016; //S_C的单个客户端调试多边，包装协议
+    S_C_GPS = 0x00001017; //GPS
+    S_C_READY_HAND = 0x00001018; //听牌
+}
+
+//吃碰杠胡
+enum ACTION_OPTION {
+    NOT_GET = 0; //不要牌
+    CHOW = 1; //吃
+    PONG = 2; //碰
+    OTHERS_KONG = 3; //其他人打出来的杠
+    SELF_KONG = 4; //自己摸到的杠
+    CONCEALED_KONG = 5; //暗杠
+    HU = 6; //胡
+}
+
+//游戏阶段
+enum GAME_STAGE{
+    WAIT_START = -1; //等待开始
+    GAME_READY = 0; //等待下一局
+    WAIT_ROLL = 1; //等待roll点
+    GAMING = 2; //游戏中
+}
+
+//连接模式
+enum CONNECT_MODE{
+    ACCOUNT_PASSWD = 0; //账号登录，debug模式1
+    ALL_PLAYER = 1; //单人控制全部账号模式，debug模式2
+}
+
+//建立连接
+message C_S_Connecting {
+    required string sid = 1; //sid
+}
+
+//建立连接，测试模式
+message C_S_DebugConnecting {
+    message JoinRoomInfo{
+        required fixed32 action = 1; //0为加入房间，1为创建房间
+        optional string roomid = 2; //加入房间时需要房间号
+        optional string rule = 3; //创建房间时需要规则
+    }
+
+    required string account = 1;
+    required string passwd = 2;
+    required CONNECT_MODE mode = 5; //连接模式
+    optional JoinRoomInfo roomSetting = 6; //debug模式下需要传入创建房间和加入房间相关参数
+}
+
+//退出房间
+message C_S_ExitRoom {
+}
+
+//刷新数据
+message C_S_RefreshData{
+}
+
+//用于检测网络
+message C_S_Ping{
+}
+
+//聊天表情
+message C_S_Talk{
+    optional fixed32 emoticons = 1;
+    optional string voice = 2;
+    optional fixed32 duration = 3;
+}
+
+//GM控制
+message C_S_GMControl{
+    required string GMMessage = 1;
+}
+
+//新一轮开始
+message C_S_GameStart{
+}
+
+//打骰
+message C_S_RollDice{
+}
+
+//出牌
+message C_S_Discard{
+    required string tile = 1;
+}
+
+//选择吃碰杠胡
+message C_S_DoAction{
+    required ACTION_OPTION action = 1;
+    required string tiles = 2; //吃牌的吃法，暗杠的选择等
+}
+
+//解散
+message C_S_DissolveRoom{
+}
+
+//解散投票，true=解散
+message C_S_DissolveVote{
+    required bool result = 1;
+}
+
+//关闭结算窗口
+message C_S_ReadyNext{
+}
+
+//单个客户端调试多边，包装协议
+message C_S_DebugProto{
+    required fixed32 selfSide = 1;
+    required fixed32 msgCode = 2; //协议号
+    required bytes data = 3;
+}
+
+//发送GPS信息
+message C_S_Gps{
+    required string gpsValue = 1;
+}
+                                
+                                
+
+//玩家信息
+message PlayerInfo {
+    required fixed32 side = 1; //位置
+    required string nickname = 2; //昵称
+    optional sfixed64 coin = 4; //金币，预留
+    optional string ip = 6; //ip
+    optional fixed32 sex = 7; //性别
+    optional fixed32 roomCards = 8; //房卡数
+    optional string headImgUrl = 9; //头像链接
+    optional bool isGM = 10;//是否GM
+    optional fixed32 id = 11;
+    optional string account = 12;
+}
+
+//个人信息
+message MyInfo{
+    message RoomInfo {
+        optional string roomId = 1; //编号
+        optional string roomName = 2; //房间名
+        required fixed64 timestamp = 3;
+        repeated PlayerInfo playerList = 4; //其他玩家的信息
+        optional string roomSetting = 5; //房间设置，鬼牌等各种
+        required fixed32 count = 6; //总局数
+        required fixed32 ownerSide = 7; //房主编号
+        required fixed32 currentRound = 8; //本轮局数
+        optional fixed32 playerCount = 9; //房间最大人数
+        required fixed32 tileCount = 10; //总牌数
+    }
+    required bool result = 1; //True为成功，一般不会失败
+    required bool isRefresh = 2; //是否需要刷新，true为需要
+    optional RoomInfo roomInfo = 3; //房间数据
+    optional PlayerInfo selfInfo = 4; //个人信息
+    optional string reason = 5;
+}
+
+message RefreshData{
+    message RestoreTiles {
+        repeated string tiles = 1;  //需要回复的牌序列
+    }
+    message PlayerRestoreData{
+        required fixed32 side = 1; //位置
+        //玩家已有操作的数据抽象[$出牌麻将列表,$碰牌列表,$明杠牌列表...]
+        repeated RestoreTiles actionedTiles = 2; //对于海南麻将，[['a1,a2,a3'], ['b2'], ['c7'], ['g1', 'g2', 'g3']]，即是已吃[1万,2万,3万],碰[2索],杠[7饼],补花[春,夏,秋]
+        optional bool isOnline = 3; //是否在线
+    }
+
+    required MyInfo gameInfo= 1;
+    required fixed64 Countdown = 2; //倒计时
+    repeated PlayerRestoreData playerDatas = 3; //需回复的玩家数据
+    required fixed32 currentSide = 4; //当前出牌玩家
+    required string lastDiscard = 5;//最后出牌
+    optional string ghost= 6; //鬼牌
+    repeated fixed32 dicePoint = 7; //点数
+    required fixed32 dealerSide = 8; //庄家
+    required fixed32 leftTileCount = 9; //牌墙的剩余牌数
+    required GAME_STAGE stage = 10; //阶段
+    repeated Action allowAction = 11; //吃碰胡
+    required fixed32 dissolveStage = 12;//解散阶段，0没解散，1未投票，2已投票，3成功解散
+    optional S_C_DissolveVote voteData = 13;//解散信息
+    required fixed32 dealerCount = 14; //连庄次数
+}
+
+//碰杠胡的信息
+message Action{
+    required ACTION_OPTION action = 1;
+    //抽象的牌字串列表,（根据不同规则或action的需要传不同的牌字串列表）
+    //如：S_C_Action胡3万,tiles=所胡的牌+摊牌['a3','a3,a3,a3,b1,b1,b1']
+    //        S_C_Allow_Action可吃4万,tiles=手牌内配牌列表['a3,a5', 'a2,a3', 'a5,a6']
+    repeated string tiles = 2;
+    optional fixed32 beActionSide = 3;
+}
+
+//建立连接
+message S_C_Connected {
+    optional MyInfo myInfo = 1;
+    required bool result = 2;//是否成功
+    optional string reason = 3; //失败原因
+}
+
+//别的玩家加入游戏
+message S_C_JoinRoom {
+    required PlayerInfo info = 1;
+    required bool isFull = 2; //房间是否已满
+}
+
+//断开
+message S_C_Disconnected {
+    required string reason = 1;
+}
+
+//退出房间
+message S_C_ExitRoom {
+    required PlayerInfo info = 1;
+}
+
+//刷新数据
+message S_C_RefreshData{
+    optional RefreshData data = 1;
+    required bool result = 2; //True有数据
+    optional string reason = 3;
+}
+
+//刷新房卡
+message S_C_RefreshRoomCard{
+    required fixed32 roomCards = 1;
+}
+
+//公告广播
+message S_C_Notice {
+    required string txt = 1;
+    optional fixed32 repeatTimes = 2;
+    optional fixed32 repeatInterval = 3;
+}
+
+//用于检测网络
+message S_C_Ping{
+}
+
+//聊天表情
+message S_C_Talk{
+    optional fixed32 emoticons = 1;
+    required fixed32 talkSide = 2;
+    optional string voice = 3;
+    optional fixed32 duration = 4;
+}
+
+//离开游戏
+message S_C_OnlineState{
+    required fixed32 changeSide = 1;
+    required bool isOnline = 2;
+}
+
+//GM控制的结果，True为成功
+message S_C_GMControl {
+    required bool result = 1;
+    required string reason = 2;
+}
+
+//游戏开始
+message S_C_SetStart{
+    repeated fixed32 dicePoints = 1; //骰子点数，用于庄家确定
+    required fixed32 dealer = 2; //庄家
+    required fixed64 timestamp = 3;
+    required fixed32 dealerCount = 4;
+}
+
+//收到发牌时色子点数
+message S_C_RollDice{
+    repeated fixed32 dicePoints = 1; //骰子点数，用于跳牌
+}
+
+//开始游戏时发送手牌
+message S_C_DealTiles{
+    repeated string tiles = 1; //手牌
+    optional string specialTile = 2; //特殊牌，鬼牌等
+    required fixed64 timestamp = 3;
+}
+
+//摸牌
+message S_C_DrawTiles{
+    message DrawData{
+        repeated string inTiles = 1; //摸入
+        repeated string outTiles = 2; //放出(花牌之类的)
+    }
+    repeated DrawData tiles = 1; //摸到的牌
+    required fixed32 side = 2;
+    required fixed64 timestamp = 3;
+}
+
+//广播出牌
+message S_C_Discard{
+    required string tile = 1; //出牌
+    required fixed32 side = 2; //出牌人
+    required fixed64 timestamp = 3;
+}
+
+//可选哪些碰杠胡
+message S_C_AllowAction{
+    repeated Action actions = 1;
+}
+
+//碰杠胡的人选择获得别人打出的哪些牌
+message S_C_DoAction{
+    required fixed32 side = 1;
+    repeated Action action = 2;
+}
+
+//广播告知有人想解散，需要投票
+message S_C_DissolveVote{
+    message DissolveData{
+        optional bool result = 1; //True为成功
+        required string nickname = 2;
+    }
+    repeated DissolveData vote = 1;
+    optional fixed64 waitTime = 2; //等待的时间
+    required string nickname = 3; //申请解散的人
+    required fixed32 dissolveSide = 4; //申请解散的人的位置
+}
+
+//解散投票结果，true=解散
+message S_C_DissolveVoteResult{
+    required bool result = 1;
+}
+
+//输赢数据
+message S_C_Balance{
+    message BalanceData{
+        //结算信息归为3类：
+        //1分数,2次数,3牌数据
+        //此3类数据都根据不同游戏规则组装成对应的列表
+        repeated string descs = 1; //结算描述，直接发给客户端显示的结算字符串数组
+        repeated fixed32 times = 2;
+        repeated string tiles = 3;
+        required sfixed32 score = 4; //输赢
+        required string nickname = 5; //昵称
+        required fixed32 side = 6; //位置
+        optional fixed32 id = 7;
+        optional bool isOwner = 8; //是否房主
+        optional string roomSetting = 9; //房间设置，鬼牌等各种
+        optional fixed64 timestamp = 10;
+        optional string headImgUrl = 11; //头像
+        optional bool isDealer = 12; //是否庄家
+        optional bool isHu = 13; //是否胡
+    }
+    required bool isDrawn = 1; //是否流局
+    repeated BalanceData setUserDatas = 2; //所有玩家的结算需要数据
+    repeated BalanceData gameUserDatas = 3; //总游戏结束的报表数据，当打完房卡可打的局数或解散后发送
+}
+
+//单个客户端调试多边，包装协议
+message S_C_DebugProto{
+    required fixed32 selfSide = 1;
+    required fixed32 msgCode = 2; //协议号
+    required bytes data = 3;
+}
+
+//发送GPS信息
+message S_C_Gps{
+    message gpsData{
+        required fixed32 chair = 1;
+        required string gpsValue = 2; 
+    }
+    repeated gpsData gpsDatas = 1;
+}
+
+//听牌信息
+message S_C_ReadyHand{
+    repeated string tile = 1;
+}
+

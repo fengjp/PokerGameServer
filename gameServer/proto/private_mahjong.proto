@@ -1,0 +1,180 @@
+package private_mahjong;
+
+//为防止编号冲突，扩展协议命名需从0x00002001或0x00003001之类的位置开始
+
+enum MSG_HEADER {
+    //client2server
+    C_S_BID = 0x00002001; //下注
+    C_S_HISTORY = 0x00002002;//查看历史
+    C_S_ENDROUND = 0x00002003;
+    C_S_ENDREADY =  0x00002004;
+    C_S_BEDEALER = 0x00002005;
+
+    C_S_GETALLTILES = 0x00002006; //获取当前牌堆
+    //server2client
+    S_C_BID = 0x00003001; //下注
+    S_C_HISTORY=0x00003002;//查看历史
+    S_C_ENDROUND = 0x00003003;
+    S_C_AFTERREFRESH = 0x00003004;//重连
+    S_C_BID_END = 0x00003005;//结算
+    S_C_AFTER_START = 0x00003006;//
+    S_C_BEDEALER = 0x00003007;
+    S_C_DEALERSTATUS = 0x00003008;
+    S_C_SWAPDEALER = 0x00003009; //换位
+
+    S_C_GETALLTILES = 0x00003010; //获取当前牌堆
+}
+                                
+                                
+//下注
+message C_S_bid {
+    required fixed32 place = 1;//下注的位置
+    required fixed32 denomination = 2 ;//下注面额
+    required fixed32 qty = 3;//下注的数量
+}
+                                
+message S_C_bid {    
+    required fixed32 place = 1;//下注的位置
+    required fixed32 denomination = 2;//下注面额
+    required fixed32 qty = 3;//下注的数量
+    required fixed32 chair = 4;
+    required fixed32 totalplacemoney = 5;//下注位置的总额
+    required fixed32 subtotalmoney = 6;//下注位置的自己的总额
+}
+
+message S_C_AfterRefresh {
+    required sfixed64 stage = 1;    
+    repeated S_C_bid bidlist = 2;//
+    optional S_C_Bid_End bidend = 3;//
+    optional fixed32 leftMS = 4;
+    repeated string usedalltiles = 5;
+    repeated fixed32 dicePoints = 6;
+    repeated bidTrans BidTransList = 7;
+    required fixed32 bidlimit = 8;
+}
+message bidTrans{
+    required fixed32 chair = 1;
+    required fixed32 place = 2;
+    required fixed32 denomination = 3;
+    required fixed32 qty = 4;
+
+}
+message placebid{
+    required fixed32 place = 1;
+    required fixed32 totalplacemoney = 2;
+    required playerbid playerlist = 3 ;
+    optional string showtiles = 4;
+}
+
+message placebidEndGame{
+    required fixed32 place = 1;
+    required fixed32 totalplacemoney = 2;    
+    optional string showtiles = 3;
+    optional fixed32 showpoint = 4;
+}
+
+message playerbid{
+    required fixed32 chair = 1 ;
+    required fixed32 place1bid = 2 ;
+    required fixed32 place2bid = 3 ;
+    required fixed32 place3bid = 4 ;
+    required sfixed64 point1 = 5 ;
+    required sfixed64 point2 = 6 ;
+    required sfixed64 point3 = 7 ;
+    required sfixed64 winpoint = 8 ;
+}
+
+message S_C_Bid_End{
+    repeated placebidEndGame placelist = 1;//
+    repeated playerbid playerlist = 2 ;
+    repeated eachround allrounddata = 3;
+    repeated string usedalltiles =4 ;
+    required fixed32 leftMS = 5 ;
+}
+
+//请求查看历史
+message C_S_history {    
+}
+
+message S_C_After_Start{
+    required fixed32 leftMS = 1 ;
+    required fixed32 bidlimit = 2 ;
+    repeated fixed32 dicePoints = 3;
+}
+
+//已经准备好开下一局
+message C_S_endready {
+
+}
+
+
+//已经准备好开下一局
+message C_S_endround {
+
+}
+
+
+//下注
+message S_C_history {    
+    repeated eachround allrounddata = 1;
+}
+message eachround{
+    required fixed32 gamecount = 1 ;
+    required fixed32 chair = 2;
+    required string playername = 3;
+    repeated sfixed64 point =4 ;
+}
+
+message S_C_EndRound{
+    required fixed32 roundnum = 1;
+    repeated eachplace placelist = 2;
+    required fixed32 waitfornewgametime = 3 ;
+}
+message eachplace{
+    required string tiles = 1;
+    repeated eachplayerbitend playerlist =2 ;
+}
+message eachplayerbitend{
+    required fixed32 chair = 1;
+    required sfixed64 point = 2;
+    repeated sfixed64 totalpoint =3 ;
+}
+
+message C_S_BeDealer{
+}
+message S_C_BeDealer{
+    required fixed32 ischanged = 1 ;
+}
+message S_C_Dealerstatus{
+    required fixed32 isdealerchanged = 1 ;
+}
+
+//新增
+//玩家信息
+message PlayerInfo {
+    required fixed32 side = 1; //位置
+    required string nickname = 2; //昵称
+    optional sfixed64 coin = 4; //金币，预留
+    optional string ip = 6; //ip
+    optional fixed32 sex = 7; //性别
+    optional fixed32 roomCards = 8; //房卡数
+    optional string headImgUrl = 9; //头像链接
+    optional bool isGM = 10;//是否GM
+    optional fixed32 id = 11;
+    optional string account = 12;
+    optional bool isonline = 13;
+}
+
+message S_C_SwapDealer{
+    required bool result = 1;   //抢庄结果
+    required fixed32 myside = 2;    //我的位置
+    required string nickname = 3;    //我的昵称
+    repeated PlayerInfo playerList = 4;     //所有玩家信息
+}
+
+message C_S_GetAllTiles{
+
+}
+message S_C_GetAllTiles{
+    repeated string tiles = 1;
+}

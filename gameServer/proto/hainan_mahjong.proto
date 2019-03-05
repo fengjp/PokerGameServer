@@ -1,0 +1,68 @@
+package hainan_mahjong;
+
+//为防止编号冲突，扩展协议命名需从0x00002001或0x00003001之类的位置开始
+
+enum MSG_HEADER {
+    //client2server
+    C_S_ON_GA = 0x00002001; //上噶数据
+
+    //server2client
+    S_C_GA_DATA = 0x00003001;           //上噶广播数据
+    S_C_GA_CHOOSE  =  0x000030002;       
+    S_C_FLOWER_HU = 0x00003003;         //花胡
+    S_C_BE_HANDLE_TILES = 0x00003004;   // 被吃三道以上牌协议
+    S_C_BE_FOLLOW  =  0x000030005;      //首牌被跟数据
+    S_C_BE_KONG  =  0x000030006;      //首牌被杠数据
+    S_C_BE_SURROUND = 0x000030007;    //被包牌协议
+}
+                                
+                                
+//上噶
+message C_S_OnGa {
+    required fixed32 ga = 1; //选择的噶
+}
+                                
+                                
+//上噶广播数据
+message S_C_GaData{
+    repeated fixed32 canGetGa = 2; //可以选的噶
+}
+
+//玩家选噶的广播
+message S_C_Ga_Choose{
+    message GaGetData{
+        required fixed32 side = 1; //所在位置
+        required fixed32 ga = 2; //所选的噶
+    }
+    repeated GaGetData data = 1;//可选噶数
+    required bool result = 2; //是否播放选噶声音
+    optional string reason = 3; //失败原因
+}
+
+//花胡的广播
+message S_C_Flower_Hu{
+    required fixed32 side =1;  //花胡玩家座位号
+    required fixed32 rate =2;  //花胡倍率
+}
+
+//三道牌的协议
+message S_C_Be_Handle_Tiles{
+    required fixed32 nums = 1; //被吃或碰的数
+    required fixed32 discardSide=2; //出牌方
+    required fixed32 actionSide=3;  //操作方
+}
+
+//首牌被跟的协议
+message S_C_Be_Follow{
+    required fixed32 side = 1;   // 首牌被跟
+}
+
+//首牌被跟的协议
+message S_C_Be_Kong{
+    required fixed32 side = 1;   // 首牌被杠
+}
+
+//被包牌协议
+message S_C_Be_Surround{
+    required fixed32 side = 1;   // 包牌协议
+}
